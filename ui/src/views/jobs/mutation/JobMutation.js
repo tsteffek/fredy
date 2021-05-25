@@ -5,6 +5,8 @@ import NotificationAdapterTable from '../../../components/table/NotificationAdap
 import { Header, Icon, Form, Popup, Button, Label } from 'semantic-ui-react';
 import ProviderTable from '../../../components/table/ProviderTable';
 import ProviderMutator from './components/provider/ProviderMutator';
+import WorkingHoursMutator from './components/workingHours/WorkingHoursMutator';
+import WorkingHoursTable from '../../../components/table/WorkingHoursTable';
 import ToastContext from '../../../components/toasts/ToastContext';
 import Headline from '../../../components/headline/Headline';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,15 +27,18 @@ export default function JobMutator() {
   const defaultName = jobToBeEdit?.name || null;
   const defaultProviderData = jobToBeEdit?.provider || [];
   const defaultNotificationAdapter = jobToBeEdit?.notificationAdapter || [];
+  const defaultWorkingHours = jobToBeEdit?.workingHours || [];
   const defaultEnabled = jobToBeEdit?.enabled ?? true;
 
   const [providerCreationVisible, setProviderCreationVisibility] = useState(false);
   const [notificationCreationVisible, setNotificationCreationVisibility] = useState(false);
   const [editNotificationAdapter, setEditNotificationAdapter] = useState(null);
+  const [workingHoursCreationVisible, setWorkingHoursCreationVisibility] = useState(null);
   const [providerData, setProviderData] = useState(defaultProviderData);
   const [name, setName] = useState(defaultName);
   const [blacklist, setBlacklist] = useState(defaultBlacklist);
   const [notificationAdapterData, setNotificationAdapterData] = useState(defaultNotificationAdapter);
+  const [workingHoursData, setWorkingHoursData] = useState(defaultWorkingHours);
   const [enabled, setEnabled] = useState(defaultEnabled);
   const history = useHistory();
   const dispatch = useDispatch();
@@ -69,6 +74,7 @@ export default function JobMutator() {
       await xhrPost('/api/jobs', {
         provider: providerData,
         notificationAdapter: notificationAdapterData,
+        workingHours: workingHoursData,
         name,
         blacklist,
         enabled,
@@ -126,6 +132,14 @@ export default function JobMutator() {
           }}
         />
       )}
+
+      <WorkingHoursMutator
+        visible={workingHoursCreationVisible}
+        onVisibilityChanged={(visible) => setWorkingHoursCreationVisibility(visible)}
+        onData={(data) => {
+          setWorkingHoursData([...workingHoursData, data]);
+        }}
+      />
 
       <Headline text={jobToBeEdit ? 'Edit a Job' : 'Create a new Job'} />
       <Form className="jobMutation__form">
@@ -192,6 +206,33 @@ export default function JobMutator() {
             onEdit={(adapterId) => {
               setEditNotificationAdapter(adapterId);
               setNotificationCreationVisibility(true);
+            }}
+          />
+        </div>
+
+        <div className="jobMutation__block jobMutation__separator">
+          {header('Working Hours', 'clock')}
+
+          <div className="jobMutation__helpContainer">
+            {help(
+              'Let Fredy rest once in a while. Or leave it empty to let him work around the clock, he' +
+                " doesn't care."
+            )}
+
+            <Form.Button
+              primary
+              className="jobMutation__newButton"
+              onClick={() => setWorkingHoursCreationVisibility(true)}
+            >
+              <Icon name="plus" />
+              Add new Working Hours
+            </Form.Button>
+          </div>
+
+          <WorkingHoursTable
+            workingHoursData={workingHoursData}
+            onRemove={(workingHoursToRemove) => {
+              setWorkingHoursData(workingHoursData.filter((workingHours) => workingHours !== workingHoursToRemove));
             }}
           />
         </div>

@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 
 import { Table, Button } from 'semantic-ui-react';
 import Switch from 'react-switch';
+import { formatHours } from './WorkingHoursTable';
 
 const emptyTable = () => {
   return (
@@ -29,6 +30,9 @@ const content = (jobs, onJobRemoval, onJobStatusChanged, onJobEdit, onJobInsight
             <Table.Cell>{job.provider.length || 0}</Table.Cell>
             <Table.Cell>{job.notificationAdapter.length || 0}</Table.Cell>
             <Table.Cell>
+              {job?.workingHours?.map((workingHours) => formatHours(workingHours)).join(', ') || '24/7'}
+            </Table.Cell>
+            <Table.Cell>
               <div style={{ float: 'right' }}>
                 <Button circular color="teal" icon="chart line" onClick={() => onJobInsight(job.id)} />
                 <Button circular color="blue" icon="edit" onClick={() => onJobEdit(job.id)} />
@@ -52,6 +56,7 @@ export default function JobTable({ jobs = {}, onJobRemoval, onJobStatusChanged, 
           <Table.HeaderCell>Number of findings</Table.HeaderCell>
           <Table.HeaderCell>Active provider</Table.HeaderCell>
           <Table.HeaderCell>Active notification adapter</Table.HeaderCell>
+          <Table.HeaderCell>Working hours</Table.HeaderCell>
           <Table.HeaderCell></Table.HeaderCell>
         </Table.Row>
       </Table.Header>

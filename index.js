@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { isDuringWorkingHours } = require('./lib/utils');
 
 //if db folder does not exist, ensure to create it before loading anything else
 if (!fs.existsSync('./db')) {
@@ -27,7 +28,7 @@ setInterval(
     config.lastRun = Date.now();
     jobStorage
       .getJobs()
-      .filter((job) => job.enabled)
+      .filter((job) => job.enabled && isDuringWorkingHours(job))
       .forEach((job) => {
         const providerIds = job.provider.map((provider) => provider.id);
 
